@@ -1,5 +1,5 @@
-name: shopliminal_ios
-description: ShopLiminal iOS Dashboard & Game Launcher.
+name: shopliminal
+description: Shopliminal iOS Launcher & Utility.
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -16,6 +16,12 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  flutter_launcher_icons: "^0.13.1"
+
+flutter_icons:
+  image_path: "icon.png"
+  ios: true
+  android: true
 
 flutter:
   uses-material-design: true
