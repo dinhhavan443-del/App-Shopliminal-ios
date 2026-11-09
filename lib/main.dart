@@ -35,8 +35,18 @@ class ShopliminalDashboard extends StatefulWidget {
 }
 
 class _ShopliminalDashboardState extends State<ShopliminalDashboard> {
-  bool _optimizeNetwork = true;
-  bool _touchBoost = true;
+  // Trạng thái các module tích hợp
+  bool _delayXVpn = true;
+  bool _realPingHud = true;
+  bool _espCrosshair = true;
+  bool _aimLagFreeze = true;
+  bool _scopeFreeze = true;
+  bool _ghostMode = false;
+  bool _worldFreeze = false;
+  bool _fps120Boost = true;
+  bool _lowLatencyWifi = true;
+  bool _socks5Tunnel = true;
+  
   double _sensitivity = 85.0;
   String _selectedGame = 'freefireth';
 
@@ -96,34 +106,49 @@ class _ShopliminalDashboardState extends State<ShopliminalDashboard> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildStatusCard(),
-            const SizedBox(height: 24),
-            _buildSectionTitle('CẤU HÌNH HỖ TRỢ KÉO TÂM'),
-            const SizedBox(height: 12),
-            _buildToggleCard(
-              title: 'Tối ưu độ nhạy khung hình',
-              subtitle: 'Cân bằng chuyển động tâm ngắm mượt mà',
-              value: _optimizeNetwork,
-              onChanged: (val) => setState(() => _optimizeNetwork = val),
-            ),
-            const SizedBox(height: 12),
-            _buildToggleCard(
-              title: 'Tăng tốc độ phản hồi chạm',
-              subtitle: 'Giúp quét tâm và gạt tâm nhạy hơn',
-              value: _touchBoost,
-              onChanged: (val) => setState(() => _touchBoost = val),
-            ),
+            const SizedBox(height: 20),
+            
+            _buildSectionTitle('🌐 1. DELAYX & REALPING CORE'),
+            const SizedBox(height: 8),
+            _buildToggleCard('DelayX Gaming VPN (libdelayxcore.so)', 'Điều tiết độ trễ gói tin UDP', _delayXVpn, (v) => setState(() => _delayXVpn = v)),
+            const SizedBox(height: 8),
+            _buildToggleCard('RealPing Floating HUD', 'Hiển thị Ping, FPS thời gian thực', _realPingHud, (v) => setState(() => _realPingHud = v)),
+            const SizedBox(height: 8),
+            _buildToggleCard('ESP Reticle & Crosshair', 'Tâm ngắm ảo định tâm chính xác cao', _espCrosshair, (v) => setState(() => _espCrosshair = v)),
+            
+            const SizedBox(height: 20),
+            _buildSectionTitle('⚡ 2. BDZMOD SUITE (HỖ TRỢ KÉO TÂM)'),
+            const SizedBox(height: 8),
+            _buildToggleCard('Aim Lag (Fire Auto-Freeze)', 'Ghìm tâm tự động khi xả đạn', _aimLagFreeze, (v) => setState(() => _aimLagFreeze = v)),
+            const SizedBox(height: 8),
+            _buildToggleCard('Scope Freeze (ADS Stabilizer)', 'Ổn định khi bật ống ngắm', _scopeFreeze, (v) => setState(() => _scopeFreeze = v)),
+            const SizedBox(height: 8),
+            _buildToggleCard('Ghost Mode (Desync Controller)', 'Xử lý bất đồng bộ hình ảnh đối thủ', _ghostMode, (v) => setState(() => _ghostMode = v)),
+            const SizedBox(height: 8),
+            _buildToggleCard('World Freeze', 'Khóa gói dữ liệu cục bộ khi cận chiến', _worldFreeze, (v) => setState(() => _worldFreeze = v)),
+            const SizedBox(height: 8),
+            _buildToggleCard('120Hz Peak FPS Boost', 'Ép tần số quét màn hình tối đa', _fps120Boost, (v) => setState(() => _fps120Boost = v)),
+            const SizedBox(height: 8),
+            _buildToggleCard('Low-Latency WiFi Lock', 'Khóa driver mạng giảm thiểu delay', _lowLatencyWifi, (v) => setState(() => _lowLatencyWifi = v)),
+            
             const SizedBox(height: 16),
             _buildSliderCard(),
+
+            const SizedBox(height: 20),
+            _buildSectionTitle('🛡 3. PARAMOD VIP SUITE'),
+            const SizedBox(height: 8),
+            _buildToggleCard('SOCKS5 Tun2Socks (libhev-socks5-tunnel.so)', 'Định hướng lưu lượng qua cổng 1080', _socks5Tunnel, (v) => setState(() => _socks5Tunnel = v)),
+
             const SizedBox(height: 24),
             _buildSectionTitle('CHỌN TRÒ CHƠI KHỞI CHẠY'),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             _buildGameSelector(),
-            const SizedBox(height: 32),
+            const SizedBox(height: 28),
             _buildLaunchButton(),
           ],
         ),
@@ -133,7 +158,7 @@ class _ShopliminalDashboardState extends State<ShopliminalDashboard> {
 
   Widget _buildStatusCard() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: const Color(0xFF131B2E),
         borderRadius: BorderRadius.circular(16),
@@ -144,8 +169,8 @@ class _ShopliminalDashboardState extends State<ShopliminalDashboard> {
       ),
       child: const Row(
         children: [
-          Icon(Icons.gps_fixed, color: Color(0xFF00F0FF), size: 36),
-          SizedBox(width: 16),
+          Icon(Icons.gps_fixed, color: Color(0xFF00F0FF), size: 32),
+          SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,17 +179,17 @@ class _ShopliminalDashboardState extends State<ShopliminalDashboard> {
                   'BUNDLE: COM.SHOPLIMINAL.IOS',
                   style: TextStyle(
                     color: Colors.white70,
-                    fontSize: 11,
+                    fontSize: 10,
                     letterSpacing: 1.1,
                   ),
                 ),
                 SizedBox(height: 4),
                 Text(
-                  'Hỗ trợ kéo tâm iOS: Sẵn sàng',
+                  'Hỗ trợ kéo tâm iOS: Đã kích hoạt module',
                   style: TextStyle(
                     color: Color(0xFF00FF88),
                     fontWeight: FontWeight.bold,
-                    fontSize: 14,
+                    fontSize: 13,
                   ),
                 ),
               ],
@@ -180,33 +205,27 @@ class _ShopliminalDashboardState extends State<ShopliminalDashboard> {
       title,
       style: const TextStyle(
         color: Color(0xFF00F0FF),
-        fontSize: 12,
-        fontWeight: FontWeight.w600,
-        letterSpacing: 1.4,
+        fontSize: 11,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 1.2,
       ),
     );
   }
 
-  Widget _buildToggleCard({
-    required String title,
-    required String subtitle,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) {
+  Widget _buildToggleCard(String title, String subtitle, bool value, ValueChanged<bool> onChanged) {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF131B2E),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: value
-              ? const Color(0xFF00F0FF).withOpacity(0.6)
-              : Colors.white12,
+          color: value ? const Color(0xFF00F0FF).withOpacity(0.5) : Colors.white10,
         ),
       ),
       child: SwitchListTile(
         activeColor: const Color(0xFF00F0FF),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-        subtitle: Text(subtitle, style: const TextStyle(color: Colors.white54, fontSize: 11)),
+        dense: true,
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+        subtitle: Text(subtitle, style: const TextStyle(color: Colors.white54, fontSize: 10)),
         value: value,
         onChanged: onChanged,
       ),
@@ -215,11 +234,11 @@ class _ShopliminalDashboardState extends State<ShopliminalDashboard> {
 
   Widget _buildSliderCard() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: const Color(0xFF131B2E),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white12),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white10),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -227,7 +246,7 @@ class _ShopliminalDashboardState extends State<ShopliminalDashboard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Mức độ hỗ trợ kéo tâm', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+              const Text('Hệ số hỗ trợ kéo tâm (Sensitivity)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
               Text('${_sensitivity.toInt()}%', style: const TextStyle(color: Color(0xFF00F0FF), fontWeight: FontWeight.bold)),
             ],
           ),
@@ -263,10 +282,10 @@ class _ShopliminalDashboardState extends State<ShopliminalDashboard> {
     return GestureDetector(
       onTap: () => setState(() => _selectedGame = id),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
+        padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           color: isSelected ? const Color(0xFF00F0FF).withOpacity(0.15) : const Color(0xFF131B2E),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: isSelected ? const Color(0xFF00F0FF) : Colors.white12,
             width: 1.5,
@@ -278,6 +297,7 @@ class _ShopliminalDashboardState extends State<ShopliminalDashboard> {
           style: TextStyle(
             color: isSelected ? const Color(0xFF00F0FF) : Colors.white70,
             fontWeight: FontWeight.bold,
+            fontSize: 13,
           ),
         ),
       ),
@@ -290,8 +310,8 @@ class _ShopliminalDashboardState extends State<ShopliminalDashboard> {
         backgroundColor: const Color(0xFF00F0FF),
         foregroundColor: const Color(0xFF0A0E17),
         padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        elevation: 8,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 6,
       ),
       onPressed: _launchGame,
       icon: const Icon(Icons.rocket_launch),
