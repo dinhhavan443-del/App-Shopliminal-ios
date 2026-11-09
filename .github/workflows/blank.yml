@@ -1,0 +1,258 @@
+name: Shopliminal - Build iOS IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build unsigned iOS IPA
+    runs-on: macos-15
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Check project
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f pubspec.yaml
+          test -f lib/main.dart
+          flutter --version
+          xcodebuild -version
+          pod --version
+
+      - name: Prepare iOS project
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "Checking iOS project..."
+
+          if [ ! -f ios/Runner.xcodeproj/project.pbxproj ] || [ ! -f ios/Runner/Info.plist ]; then
+            flutter create \
+              --platforms=ios \
+              --org com.shopliminal \
+              --project-name shopliminal \
+              .
+          fi
+
+          test -f ios/Runner.xcodeproj/project.pbxproj
+          test -f ios/Runner/Info.plist
+
+          if [ ! -f ios/Podfile ]; then
+            echo "Creating Podfile..."
+
+            cat > ios/Podfile <<'PODFILE'
+          platform :ios, '15.0'
+
+          ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+
+          project 'Runner', {
+            'Debug' => :debug,
+            'Profile' => :release,
+            'Release' => :release,
+          }
+
+          def flutter_root
+            generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
+
+            unless File.exist?(generated_xcode_build_settings_path)
+              raise "#{generated_xcode_build_settings_path} must exist. Run flutter pub get first"
+            end
+
+            File.foreach(generated_xcode_build_settings_path) do |line|
+              matches = line.match(/FLUTTER_ROOT\=(.*)/)
+              return matches[1].strip if matches
+            end
+
+            raise "FLUTTER_ROOT not found"
+          end
+
+          require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper'), flutter_root)
+
+          flutter_ios_podfile_setup
+
+          target 'Runner' do
+            use_frameworks!
+            use_modular_headers!
+
+            flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+
+            target 'RunnerTests' do
+              inherit! :search_paths
+            end
+          end
+
+          post_install do |installer|
+            installer.pods_project.targets.each do |target|
+              flutter_additional_ios_build_settings(target)
+              target.build_configurations.each do |config|
+                config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+              end
+            end
+          end
+          PODFILE
+          fi
+
+          echo "iOS project is ready."
+
+      - name: Configure app identity and deployment target
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path("ios/Runner.xcodeproj/project.pbxproj")
+          content = path.read_text()
+
+          content = re.sub(
+              r"PRODUCT_BUNDLE_IDENTIFIER = [^;]+;",
+              "PRODUCT_BUNDLE_IDENTIFIER = com.shopliminal.ios;",
+              content
+          )
+
+          content = re.sub(
+              r"IPHONEOS_DEPLOYMENT_TARGET = [^;]+;",
+              "IPHONEOS_DEPLOYMENT_TARGET = 15.0;",
+              content
+          )
+
+          path.write_text(content)
+          PY
+
+          /usr/libexec/PlistBuddy \
+            -c "Set :CFBundleDisplayName Shopliminal" \
+            ios/Runner/Info.plist \
+          || /usr/libexec/PlistBuddy \
+            -c "Add :CFBundleDisplayName string Shopliminal" \
+            ios/Runner/Info.plist
+
+      - name: Install Flutter dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          flutter clean
+          flutter pub get
+
+          test -f ios/Flutter/Generated.xcconfig
+
+      - name: Install CocoaPods dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test -f ios/Podfile
+
+          echo "Checking deployment target..."
+          grep -n "platform :ios" ios/Podfile
+
+          cd ios
+
+          pod install --repo-update
+
+          cd ..
+
+          echo "CocoaPods installation completed."
+
+      - name: Build iOS release unsigned
+        shell: bash
+        run: |
+          set -o pipefail
+
+          flutter build ios \
+            --release \
+            --no-codesign \
+            --verbose 2>&1 | tee ios-build.log
+
+      - name: Verify app bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          APP_PATH="build/ios/iphoneos/Runner.app"
+
+          if [ ! -d "$APP_PATH" ]; then
+            echo "Runner.app not found."
+            find build/ios -maxdepth 6 -print || true
+            exit 1
+          fi
+
+          test -f "$APP_PATH/Info.plist"
+
+          echo "Runner.app is ready."
+          ls -lah "$APP_PATH"
+
+      - name: Package unsigned IPA
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          APP_PATH="build/ios/iphoneos/Runner.app"
+
+          rm -rf Payload Shopliminal.ipa
+          mkdir -p Payload
+
+          cp -R "$APP_PATH" Payload/Runner.app
+
+          /usr/bin/zip -qry Shopliminal.ipa Payload
+
+          test -s Shopliminal.ipa
+
+          echo "IPA package created."
+          unzip -l Shopliminal.ipa | head -40
+          ls -lh Shopliminal.ipa
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: SHOPLIMINAL-IOS-IPA
+          path: Shopliminal.ipa
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload diagnostic logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SHOPLIMINAL-BUILD-DIAGNOSTICS
+          path: |
+            ios-build.log
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Show diagnostics
+        if: failure()
+        shell: bash
+        run: |
+          echo "BUILD FAILED"
+
+          echo "----- Flutter log -----"
+          tail -150 ios-build.log || true
+
+          echo "----- iOS files -----"
+          ls -lah ios || true
+
+          echo "----- Podfile -----"
+          cat ios/Podfile || true
+
+          echo "----- Build files -----"
+          find build/ios -maxdepth 4 -print || true
