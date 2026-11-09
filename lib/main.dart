@@ -3,16 +3,16 @@ import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const ShopLiminalApp());
+  runApp(const ShopliminalApp());
 }
 
-class ShopLiminalApp extends StatelessWidget {
-  const ShopLiminalApp({super.key});
+class ShopliminalApp extends StatelessWidget {
+  const ShopliminalApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ShopLiminal iOS',
+      title: 'Shopliminal - Hỗ trợ kéo tâm iOS',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color(0xFF0A0E17),
@@ -22,22 +22,22 @@ class ShopLiminalApp extends StatelessWidget {
           secondary: Color(0xFF7000FF),
         ),
       ),
-      home: const LiminalDashboard(),
+      home: const ShopliminalDashboard(),
     );
   }
 }
 
-class LiminalDashboard extends StatefulWidget {
-  const LiminalDashboard({super.key});
+class ShopliminalDashboard extends StatefulWidget {
+  const ShopliminalDashboard({super.key});
 
   @override
-  State<LiminalDashboard> createState() => _LiminalDashboardState();
+  State<ShopliminalDashboard> createState() => _ShopliminalDashboardState();
 }
 
-class _LiminalDashboardState extends State<LiminalDashboard> {
-  bool _optimizeNetwork = false;
-  bool _touchBoost = false;
-  double _sensitivity = 50.0;
+class _ShopliminalDashboardState extends State<ShopliminalDashboard> {
+  bool _optimizeNetwork = true;
+  bool _touchBoost = true;
+  double _sensitivity = 85.0;
   String _selectedGame = 'freefireth';
 
   Future<void> _launchGame() async {
@@ -52,7 +52,7 @@ class _LiminalDashboardState extends State<LiminalDashboard> {
         mode: LaunchMode.externalApplication,
       );
       if (!launched && mounted) {
-        _showStatus('Không thể mở ứng dụng. Hãy kiểm tra xem game đã cài đặt chưa.');
+        _showStatus('Không thể mở trò chơi. Hãy kiểm tra cài đặt.');
       }
     } catch (e) {
       if (mounted) {
@@ -79,12 +79,12 @@ class _LiminalDashboardState extends State<LiminalDashboard> {
         elevation: 0,
         centerTitle: true,
         title: const Text(
-          'SHOPLIMINAL DASHBOARD',
+          'SHOPLIMINAL - KÉO TÂM IOS',
           style: TextStyle(
             color: Color(0xFF00F0FF),
             fontWeight: FontWeight.bold,
-            letterSpacing: 1.8,
-            fontSize: 16,
+            letterSpacing: 1.5,
+            fontSize: 14,
           ),
         ),
         bottom: PreferredSize(
@@ -102,25 +102,25 @@ class _LiminalDashboardState extends State<LiminalDashboard> {
           children: [
             _buildStatusCard(),
             const SizedBox(height: 24),
-            _buildSectionTitle('CẤU HÌNH TIỆN ÍCH'),
+            _buildSectionTitle('CẤU HÌNH HỖ TRỢ KÉO TÂM'),
             const SizedBox(height: 12),
             _buildToggleCard(
-              title: 'Tối ưu hiển thị khung hình',
-              subtitle: 'Đồng bộ hóa tần số quét giao diện',
+              title: 'Tối ưu độ nhạy khung hình',
+              subtitle: 'Cân bằng chuyển động tâm ngắm mượt mà',
               value: _optimizeNetwork,
               onChanged: (val) => setState(() => _optimizeNetwork = val),
             ),
             const SizedBox(height: 12),
             _buildToggleCard(
-              title: 'Độ nhạy phản hồi cảm ứng',
-              subtitle: 'Tùy chỉnh tốc độ nhận diện vuốt màn hình',
+              title: 'Tăng tốc độ phản hồi chạm',
+              subtitle: 'Giúp quét tâm và gạt tâm nhạy hơn',
               value: _touchBoost,
               onChanged: (val) => setState(() => _touchBoost = val),
             ),
             const SizedBox(height: 16),
             _buildSliderCard(),
             const SizedBox(height: 24),
-            _buildSectionTitle('CHỌN PHIÊN BẢN KHỞI CHẠY'),
+            _buildSectionTitle('CHỌN TRÒ CHƠI KHỞI CHẠY'),
             const SizedBox(height: 12),
             _buildGameSelector(),
             const SizedBox(height: 32),
@@ -141,17 +141,10 @@ class _LiminalDashboardState extends State<LiminalDashboard> {
           color: const Color(0xFF00F0FF).withOpacity(0.4),
           width: 1.2,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF00F0FF).withOpacity(0.08),
-            blurRadius: 16,
-            spreadRadius: 2,
-          ),
-        ],
       ),
       child: const Row(
         children: [
-          Icon(Icons.shield_outlined, color: Color(0xFF00F0FF), size: 36),
+          Icon(Icons.gps_fixed, color: Color(0xFF00F0FF), size: 36),
           SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -161,17 +154,17 @@ class _LiminalDashboardState extends State<LiminalDashboard> {
                   'BUNDLE: COM.SHOPLIMINAL.IOS',
                   style: TextStyle(
                     color: Colors.white70,
-                    fontSize: 12,
+                    fontSize: 11,
                     letterSpacing: 1.1,
                   ),
                 ),
                 SizedBox(height: 4),
                 Text(
-                  'Trạng thái: Sẵn sàng hoạt động',
+                  'Hỗ trợ kéo tâm iOS: Sẵn sàng',
                   style: TextStyle(
                     color: Color(0xFF00FF88),
                     fontWeight: FontWeight.bold,
-                    fontSize: 15,
+                    fontSize: 14,
                   ),
                 ),
               ],
@@ -187,7 +180,7 @@ class _LiminalDashboardState extends State<LiminalDashboard> {
       title,
       style: const TextStyle(
         color: Color(0xFF00F0FF),
-        fontSize: 13,
+        fontSize: 12,
         fontWeight: FontWeight.w600,
         letterSpacing: 1.4,
       ),
@@ -212,14 +205,8 @@ class _LiminalDashboardState extends State<LiminalDashboard> {
       ),
       child: SwitchListTile(
         activeColor: const Color(0xFF00F0FF),
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: const TextStyle(color: Colors.white54, fontSize: 12),
-        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+        subtitle: Text(subtitle, style: const TextStyle(color: Colors.white54, fontSize: 11)),
         value: value,
         onChanged: onChanged,
       ),
@@ -240,17 +227,8 @@ class _LiminalDashboardState extends State<LiminalDashboard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Mức cân chỉnh tâm ảo',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
-              ),
-              Text(
-                '${_sensitivity.toInt()}%',
-                style: const TextStyle(
-                  color: Color(0xFF00F0FF),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              const Text('Mức độ hỗ trợ kéo tâm', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+              Text('${_sensitivity.toInt()}%', style: const TextStyle(color: Color(0xFF00F0FF), fontWeight: FontWeight.bold)),
             ],
           ),
           Slider(
@@ -270,17 +248,11 @@ class _LiminalDashboardState extends State<LiminalDashboard> {
     return Row(
       children: [
         Expanded(
-          child: _buildChoiceChip(
-            label: 'Free Fire TH',
-            id: 'freefireth',
-          ),
+          child: _buildChoiceChip(label: 'Free Fire TH', id: 'freefireth'),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _buildChoiceChip(
-            label: 'Free Fire MAX',
-            id: 'freefiremax',
-          ),
+          child: _buildChoiceChip(label: 'Free Fire MAX', id: 'freefiremax'),
         ),
       ],
     );
@@ -318,20 +290,14 @@ class _LiminalDashboardState extends State<LiminalDashboard> {
         backgroundColor: const Color(0xFF00F0FF),
         foregroundColor: const Color(0xFF0A0E17),
         padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         elevation: 8,
       ),
       onPressed: _launchGame,
       icon: const Icon(Icons.rocket_launch),
       label: const Text(
         'KHỞI CHẠY TRÒ CHƠI',
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 15,
-          letterSpacing: 1.2,
-        ),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, letterSpacing: 1.2),
       ),
     );
   }
